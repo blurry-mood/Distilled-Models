@@ -11,18 +11,17 @@ def encode_labels(labels):
     encoded = le.fit_transform(labels)
     return le, encoded
 
-def read_image(path, w, h):
+def read_image(path):
     img = Image.open(path)
-    img = img.resize((w, h))
     img = img.convert('RGB')
     return np.array(img)
 
 
 class CIFARDataset(Dataset):
     
-    def __init__(self, width, height, img_paths, labels):
+    def __init__(self, img_paths, labels, transform):
         super().__init__()
-        self.width, self.height = width, height
+        self.transform = transform
         self.img_paths = img_paths
         self.encoder, self.labels = encode_labels(labels)
         
@@ -30,18 +29,19 @@ class CIFARDataset(Dataset):
         return self.img_paths.shape[0]
     
     def __getitem__(self, i):
-        img = read_image(self.img_paths[i], self.width, self.height) 
+        img = read_image(self.img_paths[i]) 
+        img = self.transform(image=img)['image']
         label = self.labels[i]
         img = np.transpose(img, (2, 0, 1)).astype('float32')
         return img, label
 
 class DataModule(pl.LightningDataModule):
     
-    def __init__(self, path, width, height, batch_size=32, num_workers=8, train_split=.8):
+    def __init__(self, path, transform, batch_size=32, num_workers=8, train_split=.8):
         super().__init__()
         
         self.path = path
-        self.width, self.height = width, height
+        self.transform = transform
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.train_split = train_split
@@ -53,7 +53,8 @@ class DataModule(pl.LightningDataModule):
             img_paths, labels = df[:, 0], df [:, 1]
             traindir = 'train/' if train else 'test/'
             img_paths = self.path + traindir + img_paths
-            return CIFARDataset(self.width, self.height, img_paths, labels)
+            print()
+            return CIFARDataset(img_paths, labels, self.transform)
         self.train = read(True)
         self.test = read(False)
         
