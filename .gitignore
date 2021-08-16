@@ -1,3 +1,5 @@
+wandb
+lightning_logs
 train
 test
 val
