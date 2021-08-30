@@ -14,12 +14,12 @@ def encode_labels(labels):
 def read_image(path):
     img = Image.open(path)
     img = img.convert('RGB')
-    return np.array(img)
+    return img
 
 
 class CIFARDataset(Dataset):
     
-    def __init__(self, img_paths, labels, transform):
+    def __init__(self, img_paths, labels, transform=None):
         super().__init__()
         self.transform = transform
         self.img_paths = img_paths
@@ -29,19 +29,26 @@ class CIFARDataset(Dataset):
         return self.img_paths.shape[0]
     
     def __getitem__(self, i):
-        img = read_image(self.img_paths[i]) 
-        img = self.transform(image=img)['image']
+        img = read_image(self.img_paths[i])
         label = self.labels[i]
-        img = np.transpose(img, (2, 0, 1)).astype('float32')
+
+        if self.transform:
+            try: # albumentations
+                img = self.transform(image=np.array(img))['image']
+                img = np.transpose(img, (2, 0, 1)).astype('float32')
+            except:
+                img = self.transform(img)
+                
         return img, label
 
 class DataModule(pl.LightningDataModule):
     
-    def __init__(self, path, transform, batch_size=32, num_workers=8, train_split=.8):
+    def __init__(self, path, train_transform, test_transform, batch_size=32, num_workers=8, train_split=.8):
         super().__init__()
         
         self.path = path
-        self.transform = transform
+        self.train_transform = train_transform
+        self.test_transform = test_transform
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.train_split = train_split
@@ -53,8 +60,7 @@ class DataModule(pl.LightningDataModule):
             img_paths, labels = df[:, 0], df [:, 1]
             traindir = 'train/' if train else 'test/'
             img_paths = self.path + traindir + img_paths
-            print()
-            return CIFARDataset(img_paths, labels, self.transform)
+            return CIFARDataset(img_paths, labels, self.train_transform if train else self.test_transform)
         self.train = read(True)
         self.test = read(False)
         
