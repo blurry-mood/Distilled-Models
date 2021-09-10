@@ -1,0 +1,8 @@
+Pillow
+albumentations
+pytorch-lightning
+timm @ git+https://github.com/rwightman/pytorch-image-models.git@master
+
+tqdm
+
+wandb
