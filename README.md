@@ -1,2 +1,2 @@
 # Distilled-Models
-Library containing pretrained known models that are distilled.
+Library containing pretrained distilled models.
