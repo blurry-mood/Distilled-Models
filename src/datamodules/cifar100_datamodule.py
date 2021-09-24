@@ -38,10 +38,11 @@ class CIFARDataset(Dataset):
 
 class DataModule(pl.LightningDataModule):
     
-    def __init__(self, path, train_transform, test_transform, batch_size=32, num_workers=8,):
+    def __init__(self, path, train_transform, test_transform, batch_size=32, num_workers=8, val_split=0.0):
         super().__init__()
         
         self.path = path
+        self.val_split = val_split
         self.train_transform = train_transform
         self.test_transform = test_transform
         self.batch_size = batch_size
@@ -55,15 +56,28 @@ class DataModule(pl.LightningDataModule):
             img_paths, labels = df[:, 0], df [:, 1]
             
             traindir = 'train/' if train else 'test/'
-            img_paths = self.path + traindir + img_paths
+            img_paths = os.path.join(self.path, traindir) + img_paths
             
             return CIFARDataset(img_paths, labels, self.train_transform if train else self.test_transform)
         
         self.train = read(True)
         self.test = read(False)
         
+    def setup(self, stage=None):
+        if (stage is None or stage=='fit') and self.val_split>0:
+            n = len(self.train)
+            val = int(n*self.val_split)
+            train = n - val
+            self.train, self.val = random_split(self.train, [train, val])
+            self.val.transform = self.test_transform
+        
     def train_dataloader(self):
-        return DataLoader(self.train, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return DataLoader(self.train, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True, shuffle=True)
 
+    def val_dataloader(self):
+        if self.val_split>0:
+            return DataLoader(self.val, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
+        return None
+    
     def test_dataloader(self):
         return DataLoader(self.test, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True)
