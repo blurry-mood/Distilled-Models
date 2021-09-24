@@ -55,7 +55,7 @@ test_transforms = T.Compose([
 def train(args):
     # datamodule & litmodel
     dm = DataModule(args.datapath, train_transform=train_transforms, test_transform=test_transforms,
-                    batch_size=args.batch, num_workers=args.workers, )
+                    batch_size=args.batch, num_workers=args.workers, val_split=args.val_split )
     litmodel = LitModel(args.lr, args.momentum, args.weight_decay, args.step_size, args.gamma, args.nesterov)
 
     # logger & callback
