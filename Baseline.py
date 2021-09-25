@@ -1,6 +1,6 @@
 """
 Example:
-    >>> python Baseline.py -d datasets/cifar-100/dataset -s models -g -1 -e 200 -b 64 -w 8 --nesterov
+    >>> python Baseline.py -d datasets/cifar-100/dataset -s models -g -1 -e 200 -b 64 -w 8 --nesterov --wandb
 """
 from src.litmodels.baseline import LitModel
 from src.datamodules.cifar100_datamodule import DataModule

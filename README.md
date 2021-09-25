@@ -21,7 +21,7 @@ To reproduce the results of an experiment mentioned in the table below, execute 
 ## Experiments:
 | Paper | Dataset | Teacher | Student | Accuracy@Top-1 | Accuracy@Top-5 |
 | ----- | ------- | ------- | ------- | -------------- | -------------- |
-| Baseline | CIFAR-100 | Resnet32 | Resnet32 | N/A | N/A |
+| Baseline | CIFAR-100 | Resnet32 | - | 69.59 | 91.39 |
 | [Deep Mutual Learning](https://arxiv.org/abs/1706.00384) | CIFAR-100 | Resnet32 | Resnet32 | N/A | N/A |
 | [Online Knowledge Distillation with Diverse Peers](https://arxiv.org/abs/1912.00350) | CIFAR-100 | Resnet32 | Resnet32 | N/A | N/A |
 
