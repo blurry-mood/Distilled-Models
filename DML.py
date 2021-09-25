@@ -1,6 +1,6 @@
 """
 Example:
-    >>> python DML.py -d datasets/cifar-100/dataset -s models -g -1 -e 200 -b 64 -w 8 --nesterov
+    >>> python DML.py -d datasets/cifar-100/dataset -s models -g -1 -e 200 -b 64 -w 8 --nesterov --wandb
 """
 from src.litmodels.dml import LitModel
 from src.datamodules.cifar100_datamodule import DataModule
